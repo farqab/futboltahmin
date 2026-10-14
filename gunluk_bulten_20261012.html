@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FutbolTahminAI | 100% Gerçek Verili TypeSafe Analiz Bülteni</title>
+    <style>
+        :root {
+            --bg-main: #0B0F19;
+            --bg-card: #151D2F;
+            --bg-card-hover: #1E293B;
+            --primary: #3B82F6;
+            --primary-glow: rgba(59, 130, 246, 0.4);
+            --success: #10B981;
+            --warning: #F59E0B;
+            --danger: #EF4444;
+            --purple: #8B5CF6;
+            --text-main: #F8FAFC;
+            --text-muted: #94A3B8;
+            --border-color: #334155;
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: var(--bg-main); color: var(--text-main); min-height: 100vh; padding-bottom: 60px; }
+        
+        .header {
+            background: linear-gradient(135deg, #0F172A 0%, #1E1B4B 100%);
+            border-bottom: 1px solid var(--border-color);
+            padding: 30px 20px;
+            text-align: center;
+        }
+        .header h1 { font-size: 2.2rem; margin-bottom: 8px; font-weight: 800; }
+        .header h1 span { background: linear-gradient(90deg, #60A5FA, #A78BFA); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .header p { color: var(--text-muted); font-size: 0.95rem; }
+        
+        .container { max-width: 1300px; margin: 0 auto; padding: 25px 20px; }
+        
+        /* Özet İstatistik Kartları */
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+        .stat-card::after {
+            content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+        }
+        .stat-blue::after { background: var(--primary); }
+        .stat-green::after { background: var(--success); }
+        .stat-purple::after { background: var(--purple); }
+        .stat-red::after { background: var(--danger); }
+        
+        .stat-num { font-size: 2rem; font-weight: 800; margin: 4px 0; }
+        .stat-lbl { font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Özel Kupon / Öne Çıkanlar */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            margin: 30px 0 16px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .badge-pill {
+            font-size: 0.75rem;
+            padding: 4px 10px;
+            border-radius: 20px;
+            background: rgba(59, 130, 246, 0.2);
+            color: #60A5FA;
+        }
+        
+        /* Maç Kartları Grid */
+        .matches-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+            gap: 20px;
+        }
+        
+        .match-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 14px;
+            padding: 18px;
+            transition: transform 0.2s, border-color 0.2s;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .match-card:hover {
+            transform: translateY(-2px);
+            border-color: #475569;
+            background: var(--bg-card-hover);
+        }
+        
+        .match-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .match-time { font-weight: 600; color: #E2E8F0; }
+        .match-status { background: rgba(255,255,255,0.08); padding: 2px 8px; border-radius: 6px; }
+        
+        .teams-container { margin-bottom: 14px; }
+        .team-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 6px 0;
+        }
+        .team-info { display: flex; align-items: center; gap: 8px; }
+        .team-name { font-weight: 700; font-size: 1rem; color: #F1F5F9; }
+        .home-tag { font-size: 0.65rem; background: #1E3A8A; color: #93C5FD; padding: 2px 5px; border-radius: 4px; font-weight: 700; }
+        .away-tag { font-size: 0.65rem; background: #374151; color: #D1D5DB; padding: 2px 5px; border-radius: 4px; font-weight: 700; }
+        .team-logo { width: 22px; height: 22px; object-fit: contain; }
+        
+        .team-form { display: flex; gap: 3px; }
+        .form-badge {
+            width: 18px; height: 18px; font-size: 0.65rem; font-weight: 700;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 4px;
+        }
+        .form-w { background: #059669; color: white; }
+        .form-l { background: #DC2626; color: white; }
+        .form-d { background: #4B5563; color: white; }
+        .badge-empty { font-size: 0.7rem; color: var(--text-muted); }
+        
+        /* Oranlar */
+        .odds-bar {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            background: rgba(0,0,0,0.25);
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 14px;
+            text-align: center;
+        }
+        .odd-box { display: flex; flex-direction: column; }
+        .odd-lbl { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; }
+        .odd-val { font-size: 0.85rem; font-weight: 800; color: #F8FAFC; }
+        
+        /* AI Karar Kutusu */
+        .ai-prediction-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 10px;
+            padding: 12px;
+        }
+        .pred-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+            font-weight: 700;
+        }
+        .prediction-badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+        .badge-home { background: #1D4ED8; color: white; }
+        .badge-draw { background: #475569; color: white; }
+        .badge-away { background: #7C3AED; color: white; }
+        
+        .pred-explanation {
+            font-size: 0.8rem;
+            color: #CBD5E1;
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+        
+        .meters-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+        .meter-col { display: flex; flex-direction: column; gap: 2px; }
+        .meter-lbl { display: flex; justify-content: space-between; font-size: 0.7rem; color: var(--text-muted); font-weight: 600; }
+        .progress-bar { height: 5px; background: #334155; border-radius: 4px; overflow: hidden; }
+        .progress-fill { height: 100%; border-radius: 4px; }
+        
+        /* Lig Başlığı */
+        .league-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 30px 0 14px 0;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--border-color);
+            color: #F8FAFC;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h1>⚽ <span>FutbolTahminAI</span> Karar Bülteni</h1>
+        <p>Tarih: 20261012 | 🇹🇷 Nesine REA Canlı Oranları &nbsp;|&nbsp; 🌐 4'lü Küresel Sharp Radarı &nbsp;|&nbsp; 🛡️ TypeSafe AI</p>
+    </div>
+
+    <!-- 🌐 4'LÜ KÜRESEL SHARP & NESİNE REA KOMUTA MERKEZİ -->
+    <div style="background: rgba(15, 23, 42, 0.95); border-bottom: 2px solid rgba(59, 130, 246, 0.4); padding: 14px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.5);">
+        <div style="max-width: 1300px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; font-size: 0.78rem;">
+            <div style="display: flex; align-items: center; gap: 7px; background: rgba(16, 185, 129, 0.12); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.3);">
+                <span style="display: inline-block; width: 9px; height: 9px; background: #10B981; border-radius: 50%; box-shadow: 0 0 10px #10B981;"></span>
+                <strong style="color: #F8FAFC;">🇹🇷 Nesine REA:</strong>
+                <span style="color: #34D399; font-weight: 800;">CDN API Canlı (Resmi Oranlar & MBS)</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px; background: rgba(56, 189, 248, 0.12); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3);">
+                <span style="display: inline-block; width: 9px; height: 9px; background: #38BDF8; border-radius: 50%; box-shadow: 0 0 10px #38BDF8;"></span>
+                <strong style="color: #F8FAFC;">⚡ Flashscore Ninja:</strong>
+                <span style="color: #7DD3FC; font-weight: 800;">Teyitli İlk 11 & Diziliş Kalkanı</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px; background: rgba(245, 158, 11, 0.12); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(245, 158, 11, 0.3);">
+                <span style="display: inline-block; width: 9px; height: 9px; background: #F59E0B; border-radius: 50%; box-shadow: 0 0 10px #F59E0B;"></span>
+                <strong style="color: #F8FAFC;">🎯 Pinnacle Benchmark:</strong>
+                <span style="color: #FCD34D; font-weight: 800;">Adil Çizgi & Sazan Tuzağı Filtresi</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px; background: rgba(129, 140, 248, 0.12); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(129, 140, 248, 0.3);">
+                <span style="display: inline-block; width: 9px; height: 9px; background: #818CF8; border-radius: 50%; box-shadow: 0 0 10px #818CF8;"></span>
+                <strong style="color: #F8FAFC;">🌊 Dropping Odds:</strong>
+                <span style="color: #C7D2FE; font-weight: 800;">Çoklu Büro Steam Radarı</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 7px; background: rgba(236, 72, 153, 0.12); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(236, 72, 153, 0.3);">
+                <span style="display: inline-block; width: 9px; height: 9px; background: #EC4899; border-radius: 50%; box-shadow: 0 0 10px #EC4899;"></span>
+                <strong style="color: #F8FAFC;">👑 VIP Baron Radarı:</strong>
+                <span style="color: #F472B6; font-weight: 800;">Betfair Matched Volume £ & Asya Çizgisi</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- İstatistikler -->
+        <div class="summary-grid">
+            <div class="stat-card stat-blue">
+                <div class="stat-lbl">Taranan Gerçek Maç</div>
+                <div class="stat-num">5</div>
+                <div class="stat-desc" style="font-size:0.75rem; color: #94A3B8;">6 Dev Lig (Süper Lig + Avrupa)</div>
+            </div>
+            <div class="stat-card stat-green">
+                <div class="stat-lbl">🟢 OYNA (Kuponluk Banko)</div>
+                <div class="stat-num">0</div>
+                <div class="stat-desc" style="font-size:0.75rem; color: #10B981;">Yüksek Güven / Düşük Tuzak</div>
+            </div>
+            <div class="stat-card stat-purple">
+                <div class="stat-lbl">🟡 SADECE GOL OYNA</div>
+                <div class="stat-num">0</div>
+                <div class="stat-desc" style="font-size:0.75rem; color: #8B5CF6;">Taraf Riski Var, Gol Değerli</div>
+            </div>
+            <div class="stat-card stat-red">
+                <div class="stat-lbl">🔴 PAS GEÇ (UZAK DUR)</div>
+                <div class="stat-num">5</div>
+                <div class="stat-desc" style="font-size:0.75rem; color: #EF4444;">Kupon Yakıcı Tuzak Maçlar</div>
+            </div>
+        </div>
+
+        <!-- 🎟️ TYPESAFE AI AKILLI KOMBİNE KUPONLAR -->
+        <div style="background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.95)); border: 1px solid #3B82F6; border-radius: 16px; padding: 24px; margin-bottom: 40px; box-shadow: 0 10px 25px -5px rgba(59, 130, 246, 0.2);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <div>
+                    <h2 style="font-size: 1.5rem; font-weight: 800; color: #60A5FA; margin: 0; display: flex; align-items: center; gap: 8px;">
+                        🎟️ TypeSafe AI Akıllı Kupon Portföyü
+                    </h2>
+                    <p style="font-size: 0.85rem; color: #94A3B8; margin: 4px 0 0 0;">
+                        Matematiksel korelasyon ve lig stratejisine göre otomatik oluşturulan elit hazır kuponlar
+                    </p>
+                </div>
+                <span style="background: #1D4ED8; color: #EFF6FF; font-size: 0.75rem; font-weight: 700; padding: 6px 12px; border-radius: 20px;">
+                    Yapay Zeka Destekli
+                </span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px;">
+                
+                    <div style="background: linear-gradient(135deg, rgba(30, 27, 75, 0.9), rgba(15, 23, 42, 0.95)); border: 2px solid #6366F1; border-radius: 12px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 20px rgba(99, 102, 241, 0.2);">
+                        <div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid rgba(99, 102, 241, 0.3); padding-bottom: 8px;">
+                                <span style="font-weight: 800; font-size: 0.95rem; color: #E0E7FF;">🤖 50-AGENT SWARM (2'Lİ ALTIN KASA)</span>
+                                <span style="background: #6366F1; color: #FFF; font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 12px;">
+                                    %75+ Konsensüs
+                                </span>
+                            </div>
+                            
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem;">
+                            <div>
+                                <span style="color: #A5B4FC; font-size: 0.75rem;">[Süper Lig]</span>
+                                <div style="font-weight: 700; color: #FFFFFF;">Eyupspor vs Goztepe</div>
+                                <div style="color: #94A3B8; font-size: 0.7rem;">Konsensüs: <strong>%84.2</strong></div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; background: rgba(99, 102, 241, 0.25); color: #818CF8; font-weight: 800; font-size: 0.8rem;">
+                                    2.5 Üst
+                                </span>
+                                <div style="color: #CBD5E1; font-size: 0.75rem; margin-top: 2px;">Oran: <strong>1.75</strong></div>
+                            </div>
+                        </div>
+                        
+                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(0,0,0,0.3); border-radius: 8px; margin-bottom: 8px; font-size: 0.85rem;">
+                            <div>
+                                <span style="color: #A5B4FC; font-size: 0.75rem;">[Serie A]</span>
+                                <div style="font-weight: 700; color: #FFFFFF;">Torino vs Udinese</div>
+                                <div style="color: #94A3B8; font-size: 0.7rem;">Konsensüs: <strong>%82.8</strong></div>
+                            </div>
+                            <div style="text-align: right;">
+                                <span style="display: inline-block; padding: 2px 8px; border-radius: 4px; background: rgba(99, 102, 241, 0.25); color: #818CF8; font-weight: 800; font-size: 0.8rem;">
+                                    1.5 Üst
+                                </span>
+                                <div style="color: #CBD5E1; font-size: 0.75rem; margin-top: 2px;">Oran: <strong>1.4</strong></div>
+                            </div>
+                        </div>
+                        
+                        </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; padding-top: 10px; border-top: 1px dashed rgba(99, 102, 241, 0.4);">
+                            <span style="color: #C7D2FE; font-size: 0.8rem;">Swarm Toplam Oran:</span>
+                            <span style="font-size: 1.35rem; font-weight: 900; color: #818CF8;">
+                                2.45
+                            </span>
+                        </div>
+                    </div>
+                    
+            </div>
+        </div>
+
+        <!-- 🌟 GÜNÜN ELİT BANKO VE DEĞERLİ MAÇLARI -->
+        <div class="section-title">
+            <span>🟢 Günün Kuponluk Banko Maçları (OYNA)</span>
+            <span class="badge-pill">TypeSafe Onaylı Banko</span>
+        </div>
+        <div class="matches-grid">
+            
+        </div>
+
+        <!-- ⚽ GOL VE 2.5 ÜST MAÇLARI -->
+        <div class="section-title">
+            <span>🟡 Taraf Bahsi Yerine Sadece Gol Oynanacak Maçlar (2.5 ÜST / KG)</span>
+            <span class="badge-pill">Gol Değeri Yüksek</span>
+        </div>
+        <div class="matches-grid">
+            
+        </div>
+
+        <!-- ⚠️ SAZAN TUZAĞI VE SÜRPRİZ ALARMLARI -->
+        <div class="section-title">
+            <span>🔴 Pas Geçilmesi Gereken Tuzak & Belirsiz Maçlar (UZAK DUR)</span>
+            <span class="badge-pill" style="background: rgba(239, 68, 68, 0.2); color: #F87171;">Yüksek Sürpriz / Yanıltıcı</span>
+        </div>
+        <div class="matches-grid">
+            
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 19:30 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: REDDEDİLDİ)</span>
+                <span class="match-status">Full Time</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/105.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Atalanta</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/17530.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Venezia</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>3-2</strong> / <strong>3-7</strong></span>
+                <span>🏟️ New Balance Arena</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(-) - X(-) - 2(-)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(-) - X(-) - 2(-)</strong></span>
+            </div>
+            
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">-</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">REDDEDİLDİ</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: Çizgi Dengeli / Resmi Veri Bekleniyor</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Teyitli İlk 11 (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Global Sharp: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Model Adil Çizgi</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Oran Hareketi Dengeli</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Çoklu Büro Stabil</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.56</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %58</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.6)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%75.6</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%52.0</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%53.9</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.72</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-home">MS 1 (Atalanta)</span>
+                </div>
+                <p class="pred-explanation">💡 🇮🇹 [Serie A] KG motoru çok güçlü — hem KG hem 2.5 oyna. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.56 | Güven: %58). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %53.9).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%28</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 28%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%55</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 55%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%63</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 63%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 21:45 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: REDDEDİLDİ)</span>
+                <span class="match-status">Full Time</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/239.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Torino</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/118.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Udinese</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>3-4</strong> / <strong>6-8</strong></span>
+                <span>🏟️ Stadio Olimpico Gran</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(-) - X(-) - 2(-)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(-) - X(-) - 2(-)</strong></span>
+            </div>
+            
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">-</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">REDDEDİLDİ</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: Çizgi Dengeli / Resmi Veri Bekleniyor</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Teyitli İlk 11 (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Global Sharp: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Model Adil Çizgi</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Oran Hareketi Dengeli</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Çoklu Büro Stabil</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.54</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %61</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.9)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%75.5</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%51.4</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%55.2</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.74</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-home">MS 1 (Torino)</span>
+                </div>
+                <p class="pred-explanation">💡 🇮🇹 [Serie A] KG motoru çok güçlü — hem KG hem 2.5 oyna. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.54 | Güven: %61). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %55.2).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%26</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 26%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%55</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 55%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%67</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 67%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 20:00 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: REDDEDİLDİ)</span>
+                <span class="match-status">Full Time</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/20729.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Eyupspor</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/789.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Goztepe</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>2-5</strong> / <strong>4-8</strong></span>
+                <span>🏟️ Esenyurt Necmi Kadio</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(-) - X(-) - 2(-)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(-) - X(-) - 2(-)</strong></span>
+            </div>
+            
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">-</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">REDDEDİLDİ</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: Çizgi Dengeli / Resmi Veri Bekleniyor</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Teyitli İlk 11 (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Global Sharp: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Model Adil Çizgi</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Oran Hareketi Dengeli</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Çoklu Büro Stabil</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">2.5 Üst</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.63</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %65</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-2 (%9.2)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%84.8</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%65.9</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%64.6</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">3.38</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-home">MS 1 (Eyupspor)</span>
+                </div>
+                <p class="pred-explanation">💡 🇹🇷 [Süper Lig] MS güvenilir — KG düşük, 2.5 orta. En İdeal Tercih: 2.5 Üst (Oran: 1.63 | Güven: %65). Gerekçe: Yüksek tempo (Simülasyon 2.5 Üst: %65.9, En Olası: 1-2 (%9.2)).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%22</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 22%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%48</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 48%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%63</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 63%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 22:00 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: VETOED_BY_SHARP_DROP)</span>
+                <span class="match-status">Second Half</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/388.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Coventry City</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/361.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Newcastle United</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>0-7</strong> / <strong>5-2</strong></span>
+                <span>🏟️ Coventry Building So</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(3.25) - X(3.5) - 2(2.1)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(3.6) - X(3.75) - 2(2.0)</strong></span>
+            </div>
+            <div style='font-size: 0.72rem; font-weight: 700; color: #38BDF8; background: rgba(56, 189, 248, 0.12); border: 1px dashed rgba(56, 189, 248, 0.35); border-radius: 6px; padding: 4px 8px; margin-bottom: 8px;'>📈 ⚠️ Ev Sahibi Oranı %10.8 Yükseldi (Piyasa Şüphesi)</div>
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">3.6</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">3.75</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">2.0</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">1.61</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">VETOED_BY_SHARP_DROP</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: +0.5 Sabit (1.67 ➔ 1.8 Dep)</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Kadro Taraması (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%-4.2 Adil Marj</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Adil Çizgi Teyitli</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%10.8 Oran Çöküşü</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Piyasa Şüphesi</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.56</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %58</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.7)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%75.2</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%50.1</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%51.6</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.71</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-away">MS 2 (Newcastle United)</span>
+                </div>
+                <p class="pred-explanation">💡 🏴󠁧󠁢󠁥󠁮󠁧󠁿 [Premier League] En belirsiz lig — sadece aşırı güvenli oranlar. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.56 | Güven: %58). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %51.6). 📈 ⚠️ Ev Sahibi Oranı %10.8 Yükseldi (Piyasa Şüphesi).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%20</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 20%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%61</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 61%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%65</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 65%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 22:00 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: VETOED_BY_ASIAN_LINE)</span>
+                <span class="match-status">Second Half</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/1538.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Levante</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-d' title='Beraberlik'>B</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/243.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Sevilla</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>5-2</strong> / <strong>3-1</strong></span>
+                <span>🏟️ Estadi Ciutat de Val</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(2.6) - X(3.25) - 2(2.65)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(2.9) - X(3.25) - 2(2.5)</strong></span>
+            </div>
+            <div style='font-size: 0.72rem; font-weight: 700; color: #38BDF8; background: rgba(56, 189, 248, 0.12); border: 1px dashed rgba(56, 189, 248, 0.35); border-radius: 6px; padding: 4px 8px; margin-bottom: 8px;'>📈 ⚠️ Ev Sahibi Oranı %11.5 Yükseldi (Piyasa Şüphesi)</div>
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">2.9</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">3.25</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">2.5</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">2.1</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">VETOED_BY_ASIAN_LINE</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: -0.5 ➔ +0.5 (Dep Lehine)</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Kadro Taraması (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%-5.0 Adil Marj</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Adil Çizgi Teyitli</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%11.5 Oran Çöküşü</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Piyasa Şüphesi</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.56</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %58</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.7)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%77.4</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%54.2</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%56.7</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.81</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-away">MS 2 (Sevilla)</span>
+                </div>
+                <p class="pred-explanation">💡 🇪🇸 [La Liga] Gol tahmini güçlü — MS riskli, 2.5 güvenilir. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.56 | Güven: %58). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %56.7). 📈 ⚠️ Ev Sahibi Oranı %11.5 Yükseldi (Piyasa Şüphesi).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%20</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 20%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%49</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 49%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%60</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        </div>
+
+        <!-- TÜM LİGLER BÜLTENİ -->
+        <div style="margin-top: 50px;">
+            <h2 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 20px;">📋 Tüm Ligler Detaylı Analiz Tablosu</h2>
+            <div class="league-title">🇮🇹 Serie A (2 Maç)</div><div class="matches-grid">
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 19:30 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: REDDEDİLDİ)</span>
+                <span class="match-status">Full Time</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/105.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Atalanta</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/17530.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Venezia</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>3-2</strong> / <strong>3-7</strong></span>
+                <span>🏟️ New Balance Arena</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(-) - X(-) - 2(-)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(-) - X(-) - 2(-)</strong></span>
+            </div>
+            
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">-</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">REDDEDİLDİ</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: Çizgi Dengeli / Resmi Veri Bekleniyor</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Teyitli İlk 11 (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Global Sharp: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Model Adil Çizgi</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Oran Hareketi Dengeli</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Çoklu Büro Stabil</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.56</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %58</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.6)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%75.6</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%52.0</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%53.9</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.72</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-home">MS 1 (Atalanta)</span>
+                </div>
+                <p class="pred-explanation">💡 🇮🇹 [Serie A] KG motoru çok güçlü — hem KG hem 2.5 oyna. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.56 | Güven: %58). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %53.9).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%28</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 28%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%55</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 55%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%63</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 63%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 21:45 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: REDDEDİLDİ)</span>
+                <span class="match-status">Full Time</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/239.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Torino</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/118.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Udinese</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>3-4</strong> / <strong>6-8</strong></span>
+                <span>🏟️ Stadio Olimpico Gran</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(-) - X(-) - 2(-)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(-) - X(-) - 2(-)</strong></span>
+            </div>
+            
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">-</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">REDDEDİLDİ</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: Çizgi Dengeli / Resmi Veri Bekleniyor</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Teyitli İlk 11 (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Global Sharp: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Model Adil Çizgi</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Oran Hareketi Dengeli</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Çoklu Büro Stabil</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.54</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %61</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.9)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%75.5</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%51.4</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%55.2</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.74</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-home">MS 1 (Torino)</span>
+                </div>
+                <p class="pred-explanation">💡 🇮🇹 [Serie A] KG motoru çok güçlü — hem KG hem 2.5 oyna. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.54 | Güven: %61). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %55.2).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%26</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 26%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%55</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 55%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%67</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 67%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div><div class="league-title">🇹🇷 Süper Lig (1 Maç)</div><div class="matches-grid">
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 20:00 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: REDDEDİLDİ)</span>
+                <span class="match-status">Full Time</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/20729.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Eyupspor</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/789.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Goztepe</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>2-5</strong> / <strong>4-8</strong></span>
+                <span>🏟️ Esenyurt Necmi Kadio</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(-) - X(-) - 2(-)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(-) - X(-) - 2(-)</strong></span>
+            </div>
+            
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">-</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">-</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">REDDEDİLDİ</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: Çizgi Dengeli / Resmi Veri Bekleniyor</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Teyitli İlk 11 (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Global Sharp: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Model Adil Çizgi</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Oran Hareketi Dengeli</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Çoklu Büro Stabil</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">2.5 Üst</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.63</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %65</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-2 (%9.2)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%84.8</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%65.9</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%64.6</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">3.38</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-home">MS 1 (Eyupspor)</span>
+                </div>
+                <p class="pred-explanation">💡 🇹🇷 [Süper Lig] MS güvenilir — KG düşük, 2.5 orta. En İdeal Tercih: 2.5 Üst (Oran: 1.63 | Güven: %65). Gerekçe: Yüksek tempo (Simülasyon 2.5 Üst: %65.9, En Olası: 1-2 (%9.2)).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%22</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 22%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%48</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 48%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%63</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 63%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div><div class="league-title">🏴󠁧󠁢󠁥󠁮󠁧󠁿 Premier League (1 Maç)</div><div class="matches-grid">
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 22:00 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: VETOED_BY_SHARP_DROP)</span>
+                <span class="match-status">Second Half</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/388.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Coventry City</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/361.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Newcastle United</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-w' title='Galibiyet'>G</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>0-7</strong> / <strong>5-2</strong></span>
+                <span>🏟️ Coventry Building So</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(3.25) - X(3.5) - 2(2.1)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(3.6) - X(3.75) - 2(2.0)</strong></span>
+            </div>
+            <div style='font-size: 0.72rem; font-weight: 700; color: #38BDF8; background: rgba(56, 189, 248, 0.12); border: 1px dashed rgba(56, 189, 248, 0.35); border-radius: 6px; padding: 4px 8px; margin-bottom: 8px;'>📈 ⚠️ Ev Sahibi Oranı %10.8 Yükseldi (Piyasa Şüphesi)</div>
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">3.6</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">3.75</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">2.0</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">1.61</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">VETOED_BY_SHARP_DROP</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: +0.5 Sabit (1.67 ➔ 1.8 Dep)</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Kadro Taraması (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%-4.2 Adil Marj</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Adil Çizgi Teyitli</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%10.8 Oran Çöküşü</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Piyasa Şüphesi</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.56</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %58</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.7)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%75.2</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%50.1</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%51.6</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.71</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-away">MS 2 (Newcastle United)</span>
+                </div>
+                <p class="pred-explanation">💡 🏴󠁧󠁢󠁥󠁮󠁧󠁿 [Premier League] En belirsiz lig — sadece aşırı güvenli oranlar. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.56 | Güven: %58). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %51.6). 📈 ⚠️ Ev Sahibi Oranı %10.8 Yükseldi (Piyasa Şüphesi).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%20</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 20%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%61</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 61%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%65</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 65%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div><div class="league-title">🇪🇸 La Liga (1 Maç)</div><div class="matches-grid">
+        <div class="match-card">
+            <div class="match-header">
+                <span class="match-time">🕒 22:00 TSİ</span>
+                <span style="padding: 3px 8px; border-radius: 6px; font-size: 0.72rem; font-weight: 700; background: rgba(239, 68, 68, 0.18); color: #EF4444; border: 1px solid rgba(239, 68, 68, 0.4);">🔴 PAS GEÇ (VETO: VETOED_BY_ASIAN_LINE)</span>
+                <span class="match-status">Second Half</span>
+            </div>
+            
+            <div class="teams-container">
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/1538.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Levante</span>
+                        <span class="home-tag">EV</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-d' title='Beraberlik'>B</span>
+                    </div>
+                </div>
+                
+                <div class="team-row">
+                    <div class="team-info">
+                        <img src='https://a.espncdn.com/i/teamlogos/soccer/500/243.png' class='team-logo' onerror="this.style.display='none'">
+                        <span class="team-name">Sevilla</span>
+                        <span class="away-tag">DEP</span>
+                    </div>
+                    <div class="team-form">
+                        <span class='form-badge form-l' title='Mağlubiyet'>M</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-w' title='Galibiyet'>G</span><span class='form-badge form-d' title='Beraberlik'>B</span><span class='form-badge form-l' title='Mağlubiyet'>M</span>
+                    </div>
+                </div>
+            </div>
+            <div class="match-meta-box" style="font-size: 0.72rem; color: #94A3B8; background: rgba(0,0,0,0.2); padding: 5px 8px; border-radius: 6px; margin-bottom: 10px; display: flex; justify-content: space-between;">
+                <span>⚽ Son 3 Maç Gol: <strong>5-2</strong> / <strong>3-1</strong></span>
+                <span>🏟️ Estadi Ciutat de Val</span>
+            </div>
+            
+            <!-- 📈 AÇILIŞ VE GÜNCEL ORANLAR (ODDS DRIFT) -->
+            <div style="font-size: 0.70rem; color: #94A3B8; background: rgba(0,0,0,0.25); border-radius: 6px; padding: 5px 8px; margin-bottom: 6px; display: flex; justify-content: space-between; border: 1px solid rgba(255,255,255,0.05);">
+                <span>Açılış: <strong>1(2.6) - X(3.25) - 2(2.65)</strong></span>
+                <span style="color: #60A5FA;">Güncel: <strong>1(2.9) - X(3.25) - 2(2.5)</strong></span>
+            </div>
+            <div style='font-size: 0.72rem; font-weight: 700; color: #38BDF8; background: rgba(56, 189, 248, 0.12); border: 1px dashed rgba(56, 189, 248, 0.35); border-radius: 6px; padding: 4px 8px; margin-bottom: 8px;'>📈 ⚠️ Ev Sahibi Oranı %11.5 Yükseldi (Piyasa Şüphesi)</div>
+
+            <!-- 🇹🇷 NESİNE REA RESMİ İDDAA ORANLARI VE MBS -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; font-size: 0.70rem;">
+                <span style="background: rgba(239, 68, 68, 0.2); color: #FCA5A5; border: 1px solid rgba(239, 68, 68, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    🇹🇷 NESİNE REA BEKLENİYOR
+                </span>
+                <span style="background: rgba(59, 130, 246, 0.2); color: #93C5FD; border: 1px solid rgba(59, 130, 246, 0.4); padding: 2px 7px; border-radius: 4px; font-weight: 800;">
+                    MBS: 1
+                </span>
+            </div>
+
+            <div class="odds-bar">
+                <div class="odd-box"><span class="odd-lbl">1</span><span class="odd-val">2.9</span></div>
+                <div class="odd-box"><span class="odd-lbl">X</span><span class="odd-val">3.25</span></div>
+                <div class="odd-box"><span class="odd-lbl">2</span><span class="odd-val">2.5</span></div>
+                <div class="odd-box"><span class="odd-lbl">2.5 Ü</span><span class="odd-val">2.1</span></div>
+            </div>
+
+            
+        <div style="background: rgba(239, 68, 68, 0.12); border: 1px solid #EF4444; border-radius: 10px; padding: 9px 11px; margin-bottom: 12px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 5px;">
+                <span style="color: #F8FAFC; font-weight: 800; font-size: 0.74rem;">🌐 4'lü Küresel Sharp & VIP İstihbaratı</span>
+                <div>
+                    <span style="background: #EF4444; color: #FFFFFF; font-weight: 900; padding: 2px 7px; border-radius: 4px; font-size: 0.67rem;">VETOED_BY_ASIAN_LINE</span>
+                    
+                </div>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 6px; font-size: 0.69rem;">
+                <!-- 1. VIP Baron Para Hacmi & Asya -->
+                <div style="background: rgba(245, 158, 11, 0.09); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #FBBF24; font-weight: 800; font-size: 0.67rem;">👑 VIP Baron Radarı</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Canlı Borsa: Veri Bekleniyor</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Asya: -0.5 ➔ +0.5 (Dep Lehine)</div>
+                </div>
+
+                <!-- 2. Flashscore Teyitli İlk 11 & Diziliş -->
+                <div style="background: rgba(56, 189, 248, 0.09); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #38BDF8; font-weight: 800; font-size: 0.67rem;">⚡ Flashscore Ninja</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">Kadro Taraması (4-3-3 vs 4-2-3-1)</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Eksik: Ev 0, Dep 0</div>
+                </div>
+
+                <!-- 3. Pinnacle Marjsız Adil Çizgi -->
+                <div style="background: rgba(16, 185, 129, 0.09); border: 1px solid rgba(16, 185, 129, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #34D399; font-weight: 800; font-size: 0.67rem;">🎯 Pinnacle Benchmark</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%-5.0 Adil Marj</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Adil Çizgi Teyitli</div>
+                </div>
+
+                <!-- 4. Dropping Odds / Steam Hareketi -->
+                <div style="background: rgba(129, 140, 248, 0.09); border: 1px solid rgba(129, 140, 248, 0.25); border-radius: 6px; padding: 5px 7px;">
+                    <div style="color: #818CF8; font-weight: 800; font-size: 0.67rem;">🌊 Dropping Odds</div>
+                    <div style="color: #FFFFFF; font-weight: 700;">%11.5 Oran Çöküşü</div>
+                    <div style="color: #94A3B8; font-size: 0.64rem;">Piyasa Şüphesi</div>
+                </div>
+            </div>
+        </div>
+        
+
+            <!-- 🌟 TYPESAFE OMNI-MARKET EN İDEAL TERCİH KUTUSU -->
+            <div style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.18), rgba(217, 119, 6, 0.08)); border: 1px solid rgba(245, 158, 11, 0.45); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <div style="font-size: 0.70rem; color: #FBBF24; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">👑 TypeSafe En İdeal Tercih</div>
+                    <div style="font-size: 0.92rem; font-weight: 800; color: #FFFFFF; margin-top: 2px;">Karşılıklı Gol Var</div>
+                </div>
+                <div style="text-align: right;">
+                    <span style="background: #F59E0B; color: #000; font-weight: 900; font-size: 0.85rem; padding: 2px 8px; border-radius: 5px;">Oran: 1.56</span>
+                    <div style="font-size: 0.68rem; color: #FDE68A; margin-top: 2px;">Güven: %58</div>
+                </div>
+            </div>
+
+            <!-- 🎲 10.000 MAÇ MONTE CARLO SİMÜLASYON KUTUSU -->
+            <div style="background: rgba(139, 92, 246, 0.08); border: 1px dashed rgba(139, 92, 246, 0.35); border-radius: 8px; padding: 7px 10px; margin-bottom: 10px; font-size: 0.72rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px;">
+                    <span style="color: #C084FC; font-weight: 800;">🎲 10.000 Simülasyon (Poisson)</span>
+                    <span style="color: #E2E8F0; font-size: 0.72rem;">En Olası: <strong style="color: #38BDF8;">1-1 (%11.7)</strong></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #94A3B8; font-size: 0.70rem; border-top: 1px solid rgba(255,255,255,0.06); padding-top: 4px;">
+                    <span>1.5 Üst: <strong style="color: #F1F5F9;">%77.4</strong></span>
+                    <span>2.5 Üst: <strong style="color: #F1F5F9;">%54.2</strong></span>
+                    <span>KG: <strong style="color: #F1F5F9;">%56.7</strong></span>
+                    <span>xG: <strong style="color: #F1F5F9;">2.81</strong></span>
+                </div>
+            </div>
+            
+            <div class="ai-prediction-box">
+                <div class="pred-title">
+                    <span>🧠 Taraf Kararı:</span>
+                    <span class="prediction-badge badge-away">MS 2 (Sevilla)</span>
+                </div>
+                <p class="pred-explanation">💡 🇪🇸 [La Liga] Gol tahmini güçlü — MS riskli, 2.5 güvenilir. En İdeal Tercih: Karşılıklı Gol Var (Oran: 1.56 | Güven: %58). Gerekçe: Karşılıklı gol potansiyeli (Simülasyon KG: %56.7). 📈 ⚠️ Ev Sahibi Oranı %11.5 Yükseldi (Piyasa Şüphesi).</p>
+                
+                <div class="meters-grid">
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Güven Endeksi</span><span>%20</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 20%; background: #3b82f6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>2.5 Gol Üstü</span><span>%49</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 49%; background: #10b981;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>KG Var</span><span>%60</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 60%; background: #8b5cf6;"></div></div>
+                    </div>
+                    <div class="meter-col">
+                        <div class="meter-lbl"><span>Tuzak / Risk</span><span>9.8/10</span></div>
+                        <div class="progress-bar"><div class="progress-fill" style="width: 98%; background: #ef4444;"></div></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+        </div>
+    </div>
+
+</body>
+</html>

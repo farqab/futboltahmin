@@ -1,0 +1,8 @@
+{
+  "banko_mimari": "iki_asama_typesafe",
+  "lig_stratejisi": "evet_lig_bazli_farkli_strateji",
+  "bagimsiz_2_5": "evet_bagimsiz_2_5_motoru",
+  "sezon_dinamik_agirlik": 0.77,
+  "banko_guven_esigi_raw": 1.14,
+  "banko_guven_esigi": "60%"
+}

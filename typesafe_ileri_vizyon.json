@@ -1,0 +1,6 @@
+{
+  "kombinasyon_stratejisi": "korelasyon_bazli_kombine",
+  "taraf_derinlesmesi": "pres_ve_oyun_tarzi_uyusmazligi",
+  "kalibrasyon_etkisi": 0.54,
+  "vizyon_skoru": 2.8
+}

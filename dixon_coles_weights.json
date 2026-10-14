@@ -1,0 +1,1083 @@
+{
+  "trained_at": "2026-10-09T14:26:43.380392",
+  "total_matches_trained": 8980,
+  "leagues": {
+    "Premier League": {
+      "matches_count": 1900,
+      "teams_count": 27,
+      "gamma_home_advantage": 1.192,
+      "rho": -0.1,
+      "top_attacks": [
+        [
+          "Manchester City",
+          1.595
+        ],
+        [
+          "Liverpool",
+          1.491
+        ],
+        [
+          "Arsenal",
+          1.448
+        ],
+        [
+          "Newcastle United",
+          1.26
+        ],
+        [
+          "Chelsea",
+          1.202
+        ]
+      ],
+      "top_defenses": [
+        [
+          "Arsenal",
+          1.376
+        ],
+        [
+          "Manchester City",
+          1.234
+        ],
+        [
+          "Liverpool",
+          0.963
+        ],
+        [
+          "Sunderland",
+          0.945
+        ],
+        [
+          "Everton",
+          0.909
+        ]
+      ],
+      "teams": {
+        "AFC Bournemouth": {
+          "alpha_attack": 1.0908,
+          "beta_defense": 1.2041,
+          "defense_strength": 0.8305
+        },
+        "Arsenal": {
+          "alpha_attack": 1.4478,
+          "beta_defense": 0.7266,
+          "defense_strength": 1.3763
+        },
+        "Aston Villa": {
+          "alpha_attack": 1.1701,
+          "beta_defense": 1.1422,
+          "defense_strength": 0.8755
+        },
+        "Brentford": {
+          "alpha_attack": 1.1395,
+          "beta_defense": 1.2032,
+          "defense_strength": 0.8311
+        },
+        "Brighton & Hove Albion": {
+          "alpha_attack": 1.131,
+          "beta_defense": 1.1607,
+          "defense_strength": 0.8615
+        },
+        "Burnley": {
+          "alpha_attack": 0.7724,
+          "beta_defense": 1.587,
+          "defense_strength": 0.6301
+        },
+        "Chelsea": {
+          "alpha_attack": 1.2018,
+          "beta_defense": 1.1165,
+          "defense_strength": 0.8956
+        },
+        "Crystal Palace": {
+          "alpha_attack": 0.9386,
+          "beta_defense": 1.1399,
+          "defense_strength": 0.8773
+        },
+        "Everton": {
+          "alpha_attack": 0.8586,
+          "beta_defense": 1.0996,
+          "defense_strength": 0.9094
+        },
+        "Fulham": {
+          "alpha_attack": 1.0118,
+          "beta_defense": 1.17,
+          "defense_strength": 0.8547
+        },
+        "Ipswich Town": {
+          "alpha_attack": 0.7185,
+          "beta_defense": 1.8207,
+          "defense_strength": 0.5492
+        },
+        "Leeds United": {
+          "alpha_attack": 0.975,
+          "beta_defense": 1.3554,
+          "defense_strength": 0.7378
+        },
+        "Leicester City": {
+          "alpha_attack": 0.8095,
+          "beta_defense": 1.6149,
+          "defense_strength": 0.6192
+        },
+        "Liverpool": {
+          "alpha_attack": 1.4905,
+          "beta_defense": 1.0385,
+          "defense_strength": 0.963
+        },
+        "Luton Town": {
+          "alpha_attack": 1.0348,
+          "beta_defense": 1.8872,
+          "defense_strength": 0.5299
+        },
+        "Manchester City": {
+          "alpha_attack": 1.5952,
+          "beta_defense": 0.8106,
+          "defense_strength": 1.2337
+        },
+        "Manchester United": {
+          "alpha_attack": 1.1651,
+          "beta_defense": 1.1458,
+          "defense_strength": 0.8728
+        },
+        "Newcastle United": {
+          "alpha_attack": 1.2597,
+          "beta_defense": 1.1703,
+          "defense_strength": 0.8545
+        },
+        "Norwich City": {
+          "alpha_attack": 0.442,
+          "beta_defense": 1.9264,
+          "defense_strength": 0.5191
+        },
+        "Nottingham Forest": {
+          "alpha_attack": 1.0144,
+          "beta_defense": 1.1793,
+          "defense_strength": 0.8479
+        },
+        "Sheffield United": {
+          "alpha_attack": 0.7036,
+          "beta_defense": 2.2561,
+          "defense_strength": 0.4432
+        },
+        "Southampton": {
+          "alpha_attack": 0.6213,
+          "beta_defense": 1.7618,
+          "defense_strength": 0.5676
+        },
+        "Sunderland": {
+          "alpha_attack": 0.861,
+          "beta_defense": 1.0583,
+          "defense_strength": 0.9449
+        },
+        "Tottenham Hotspur": {
+          "alpha_attack": 1.1729,
+          "beta_defense": 1.3377,
+          "defense_strength": 0.7475
+        },
+        "Watford": {
+          "alpha_attack": 0.62,
+          "beta_defense": 1.7834,
+          "defense_strength": 0.5607
+        },
+        "West Ham United": {
+          "alpha_attack": 0.9775,
+          "beta_defense": 1.3834,
+          "defense_strength": 0.7228
+        },
+        "Wolverhampton Wanderers": {
+          "alpha_attack": 0.7767,
+          "beta_defense": 1.3986,
+          "defense_strength": 0.715
+        }
+      }
+    },
+    "La Liga": {
+      "matches_count": 1520,
+      "teams_count": 25,
+      "gamma_home_advantage": 1.283,
+      "rho": -0.1,
+      "top_attacks": [
+        [
+          "FC Barcelona",
+          1.779
+        ],
+        [
+          "Real Madrid",
+          1.656
+        ],
+        [
+          "Atlético Madrid",
+          1.429
+        ],
+        [
+          "Villarreal CF",
+          1.419
+        ],
+        [
+          "Girona",
+          1.251
+        ]
+      ],
+      "top_defenses": [
+        [
+          "Athletic Club",
+          1.307
+        ],
+        [
+          "Real Madrid",
+          1.283
+        ],
+        [
+          "Atlético Madrid",
+          1.218
+        ],
+        [
+          "FC Barcelona",
+          1.165
+        ],
+        [
+          "Real Sociedad",
+          1.088
+        ]
+      ],
+      "teams": {
+        "Athletic Club": {
+          "alpha_attack": 1.0862,
+          "beta_defense": 0.7651,
+          "defense_strength": 1.307
+        },
+        "Atlético Madrid": {
+          "alpha_attack": 1.4292,
+          "beta_defense": 0.8208,
+          "defense_strength": 1.2184
+        },
+        "CA Osasuna": {
+          "alpha_attack": 0.9318,
+          "beta_defense": 1.1307,
+          "defense_strength": 0.8844
+        },
+        "CD Alaves": {
+          "alpha_attack": 0.7576,
+          "beta_defense": 1.0676,
+          "defense_strength": 0.9367
+        },
+        "CD Leganes": {
+          "alpha_attack": 0.8478,
+          "beta_defense": 1.2368,
+          "defense_strength": 0.8086
+        },
+        "Cadiz CF": {
+          "alpha_attack": 0.6099,
+          "beta_defense": 1.1624,
+          "defense_strength": 0.8603
+        },
+        "Celta Vigo": {
+          "alpha_attack": 1.0825,
+          "beta_defense": 1.2112,
+          "defense_strength": 0.8256
+        },
+        "Elche CF": {
+          "alpha_attack": 0.7217,
+          "beta_defense": 1.3262,
+          "defense_strength": 0.754
+        },
+        "Espanyol Barcelona": {
+          "alpha_attack": 0.9162,
+          "beta_defense": 1.2312,
+          "defense_strength": 0.8122
+        },
+        "FC Barcelona": {
+          "alpha_attack": 1.7786,
+          "beta_defense": 0.8585,
+          "defense_strength": 1.1648
+        },
+        "Getafe CF": {
+          "alpha_attack": 0.7538,
+          "beta_defense": 0.9886,
+          "defense_strength": 1.0115
+        },
+        "Girona": {
+          "alpha_attack": 1.2512,
+          "beta_defense": 1.2397,
+          "defense_strength": 0.8067
+        },
+        "Granada CF": {
+          "alpha_attack": 0.8428,
+          "beta_defense": 1.6355,
+          "defense_strength": 0.6114
+        },
+        "Levante UD": {
+          "alpha_attack": 1.1424,
+          "beta_defense": 1.7237,
+          "defense_strength": 0.5801
+        },
+        "RCD Mallorca": {
+          "alpha_attack": 0.7308,
+          "beta_defense": 1.0099,
+          "defense_strength": 0.9901
+        },
+        "Rayo Vallecano": {
+          "alpha_attack": 0.7854,
+          "beta_defense": 1.0631,
+          "defense_strength": 0.9406
+        },
+        "Real Betis": {
+          "alpha_attack": 1.1271,
+          "beta_defense": 1.0373,
+          "defense_strength": 0.9641
+        },
+        "Real Madrid": {
+          "alpha_attack": 1.6557,
+          "beta_defense": 0.7796,
+          "defense_strength": 1.2828
+        },
+        "Real Sociedad": {
+          "alpha_attack": 0.8859,
+          "beta_defense": 0.9194,
+          "defense_strength": 1.0877
+        },
+        "Real Valladolid": {
+          "alpha_attack": 0.6124,
+          "beta_defense": 1.8235,
+          "defense_strength": 0.5484
+        },
+        "Sevilla FC": {
+          "alpha_attack": 0.9652,
+          "beta_defense": 1.1494,
+          "defense_strength": 0.87
+        },
+        "UD Almeria": {
+          "alpha_attack": 0.9934,
+          "beta_defense": 1.5618,
+          "defense_strength": 0.6403
+        },
+        "UD Las Palmas": {
+          "alpha_attack": 0.7746,
+          "beta_defense": 1.2338,
+          "defense_strength": 0.8105
+        },
+        "Valencia CF": {
+          "alpha_attack": 0.8984,
+          "beta_defense": 1.0947,
+          "defense_strength": 0.9135
+        },
+        "Villarreal CF": {
+          "alpha_attack": 1.4194,
+          "beta_defense": 1.1555,
+          "defense_strength": 0.8654
+        }
+      }
+    },
+    "Serie A": {
+      "matches_count": 1520,
+      "teams_count": 26,
+      "gamma_home_advantage": 1.146,
+      "rho": -0.1,
+      "top_attacks": [
+        [
+          "Internazionale",
+          1.669
+        ],
+        [
+          "Atalanta",
+          1.531
+        ],
+        [
+          "AC Milan",
+          1.407
+        ],
+        [
+          "SSC Napoli",
+          1.295
+        ],
+        [
+          "ACF Fiorentina",
+          1.25
+        ]
+      ],
+      "top_defenses": [
+        [
+          "Internazionale",
+          1.29
+        ],
+        [
+          "SSC Napoli",
+          1.254
+        ],
+        [
+          "Juventus",
+          1.23
+        ],
+        [
+          "AS Roma",
+          1.096
+        ],
+        [
+          "Torino FC",
+          1.049
+        ]
+      ],
+      "teams": {
+        "AC Milan": {
+          "alpha_attack": 1.4066,
+          "beta_defense": 1.0368,
+          "defense_strength": 0.9645
+        },
+        "AC Monza": {
+          "alpha_attack": 0.7598,
+          "beta_defense": 1.4121,
+          "defense_strength": 0.7082
+        },
+        "AC Venezia": {
+          "alpha_attack": 0.7124,
+          "beta_defense": 1.3379,
+          "defense_strength": 0.7474
+        },
+        "ACF Fiorentina": {
+          "alpha_attack": 1.2502,
+          "beta_defense": 1.0424,
+          "defense_strength": 0.9593
+        },
+        "AS Roma": {
+          "alpha_attack": 1.2178,
+          "beta_defense": 0.9122,
+          "defense_strength": 1.0963
+        },
+        "Atalanta": {
+          "alpha_attack": 1.5305,
+          "beta_defense": 0.9994,
+          "defense_strength": 1.0006
+        },
+        "Bologna FC": {
+          "alpha_attack": 1.1522,
+          "beta_defense": 1.0316,
+          "defense_strength": 0.9694
+        },
+        "Cagliari Calcio": {
+          "alpha_attack": 0.8781,
+          "beta_defense": 1.4137,
+          "defense_strength": 0.7074
+        },
+        "Como Calcio": {
+          "alpha_attack": 1.093,
+          "beta_defense": 1.17,
+          "defense_strength": 0.8547
+        },
+        "Empoli FC": {
+          "alpha_attack": 0.746,
+          "beta_defense": 1.3209,
+          "defense_strength": 0.757
+        },
+        "Frosinone Calcio": {
+          "alpha_attack": 0.914,
+          "beta_defense": 1.5894,
+          "defense_strength": 0.6292
+        },
+        "Genoa CFC": {
+          "alpha_attack": 0.8317,
+          "beta_defense": 1.1094,
+          "defense_strength": 0.9014
+        },
+        "Hellas Verona": {
+          "alpha_attack": 0.8034,
+          "beta_defense": 1.355,
+          "defense_strength": 0.738
+        },
+        "Internazionale": {
+          "alpha_attack": 1.6686,
+          "beta_defense": 0.775,
+          "defense_strength": 1.2904
+        },
+        "Juventus": {
+          "alpha_attack": 1.1695,
+          "beta_defense": 0.813,
+          "defense_strength": 1.2299
+        },
+        "Lazio Roma": {
+          "alpha_attack": 1.2401,
+          "beta_defense": 1.0289,
+          "defense_strength": 0.9719
+        },
+        "Parma FC": {
+          "alpha_attack": 0.9649,
+          "beta_defense": 1.3084,
+          "defense_strength": 0.7643
+        },
+        "SSC Napoli": {
+          "alpha_attack": 1.2951,
+          "beta_defense": 0.7973,
+          "defense_strength": 1.2542
+        },
+        "Salernitana Calcio 1919": {
+          "alpha_attack": 0.8011,
+          "beta_defense": 1.7213,
+          "defense_strength": 0.5809
+        },
+        "Sampdoria": {
+          "alpha_attack": 0.6838,
+          "beta_defense": 1.5916,
+          "defense_strength": 0.6283
+        },
+        "Sassuolo Calcio": {
+          "alpha_attack": 1.0166,
+          "beta_defense": 1.6333,
+          "defense_strength": 0.6123
+        },
+        "Spezia Calcio": {
+          "alpha_attack": 0.7252,
+          "beta_defense": 1.5214,
+          "defense_strength": 0.6573
+        },
+        "Torino FC": {
+          "alpha_attack": 0.8252,
+          "beta_defense": 0.9529,
+          "defense_strength": 1.0494
+        },
+        "US Cremonese": {
+          "alpha_attack": 0.7661,
+          "beta_defense": 1.6287,
+          "defense_strength": 0.614
+        },
+        "US Lecce": {
+          "alpha_attack": 0.6331,
+          "beta_defense": 1.2306,
+          "defense_strength": 0.8126
+        },
+        "Udinese Calcio": {
+          "alpha_attack": 0.915,
+          "beta_defense": 1.2548,
+          "defense_strength": 0.797
+        }
+      }
+    },
+    "Bundesliga": {
+      "matches_count": 1224,
+      "teams_count": 24,
+      "gamma_home_advantage": 1.218,
+      "rho": -0.1,
+      "top_attacks": [
+        [
+          "Bayern Munchen",
+          1.91
+        ],
+        [
+          "Borussia Dortmund",
+          1.529
+        ],
+        [
+          "Bayer Leverkusen",
+          1.498
+        ],
+        [
+          "RasenBallsport Leipzig",
+          1.293
+        ],
+        [
+          "VfB Stuttgart",
+          1.248
+        ]
+      ],
+      "top_defenses": [
+        [
+          "FC St. Pauli",
+          1.047
+        ],
+        [
+          "Bayern Munchen",
+          1.036
+        ],
+        [
+          "Bayer Leverkusen",
+          1.033
+        ],
+        [
+          "RasenBallsport Leipzig",
+          0.953
+        ],
+        [
+          "1. FSV Mainz 05",
+          0.872
+        ]
+      ],
+      "teams": {
+        "1. FC Heidenheim": {
+          "alpha_attack": 0.8647,
+          "beta_defense": 1.4197,
+          "defense_strength": 0.7044
+        },
+        "1. FC Koln": {
+          "alpha_attack": 0.8142,
+          "beta_defense": 1.3327,
+          "defense_strength": 0.7504
+        },
+        "1. FC Union Berlin": {
+          "alpha_attack": 0.806,
+          "beta_defense": 1.1902,
+          "defense_strength": 0.8402
+        },
+        "1. FSV Mainz 05": {
+          "alpha_attack": 1.0184,
+          "beta_defense": 1.147,
+          "defense_strength": 0.8719
+        },
+        "1899 Hoffenheim": {
+          "alpha_attack": 1.1099,
+          "beta_defense": 1.564,
+          "defense_strength": 0.6394
+        },
+        "Arminia Bielefeld": {
+          "alpha_attack": 0.5421,
+          "beta_defense": 1.3077,
+          "defense_strength": 0.7647
+        },
+        "Bayer Leverkusen": {
+          "alpha_attack": 1.4978,
+          "beta_defense": 0.9676,
+          "defense_strength": 1.0335
+        },
+        "Bayern Munchen": {
+          "alpha_attack": 1.9097,
+          "beta_defense": 0.9652,
+          "defense_strength": 1.0361
+        },
+        "Bor. Monchengladbach": {
+          "alpha_attack": 1.1199,
+          "beta_defense": 1.4569,
+          "defense_strength": 0.6864
+        },
+        "Borussia Dortmund": {
+          "alpha_attack": 1.5288,
+          "beta_defense": 1.1694,
+          "defense_strength": 0.8552
+        },
+        "Eintracht Frankfurt": {
+          "alpha_attack": 1.1757,
+          "beta_defense": 1.1892,
+          "defense_strength": 0.8409
+        },
+        "FC Augsburg": {
+          "alpha_attack": 0.8308,
+          "beta_defense": 1.3373,
+          "defense_strength": 0.7478
+        },
+        "FC Schalke 04": {
+          "alpha_attack": 0.7447,
+          "beta_defense": 1.6816,
+          "defense_strength": 0.5947
+        },
+        "FC St. Pauli": {
+          "alpha_attack": 0.5727,
+          "beta_defense": 0.9547,
+          "defense_strength": 1.0475
+        },
+        "Hertha BSC": {
+          "alpha_attack": 0.8283,
+          "beta_defense": 1.6962,
+          "defense_strength": 0.5896
+        },
+        "Holstein Kiel": {
+          "alpha_attack": 1.0503,
+          "beta_defense": 1.8936,
+          "defense_strength": 0.5281
+        },
+        "RasenBallsport Leipzig": {
+          "alpha_attack": 1.2932,
+          "beta_defense": 1.0491,
+          "defense_strength": 0.9532
+        },
+        "SC Freiburg": {
+          "alpha_attack": 1.0093,
+          "beta_defense": 1.2551,
+          "defense_strength": 0.7967
+        },
+        "SV Darmstadt 98": {
+          "alpha_attack": 0.6015,
+          "beta_defense": 2.0366,
+          "defense_strength": 0.491
+        },
+        "SpVgg Greuther Furth": {
+          "alpha_attack": 0.5803,
+          "beta_defense": 1.9599,
+          "defense_strength": 0.5102
+        },
+        "VfB Stuttgart": {
+          "alpha_attack": 1.2482,
+          "beta_defense": 1.2277,
+          "defense_strength": 0.8145
+        },
+        "VfL Bochum": {
+          "alpha_attack": 0.7866,
+          "beta_defense": 1.6127,
+          "defense_strength": 0.6201
+        },
+        "VfL Wolfsburg": {
+          "alpha_attack": 1.0136,
+          "beta_defense": 1.2882,
+          "defense_strength": 0.7763
+        },
+        "Werder Bremen": {
+          "alpha_attack": 1.0535,
+          "beta_defense": 1.3696,
+          "defense_strength": 0.7301
+        }
+      }
+    },
+    "Ligue 1": {
+      "matches_count": 1372,
+      "teams_count": 24,
+      "gamma_home_advantage": 1.174,
+      "rho": -0.1,
+      "top_attacks": [
+        [
+          "Paris Saint-Germain",
+          1.826
+        ],
+        [
+          "AS Monaco",
+          1.389
+        ],
+        [
+          "Olympique Marseille",
+          1.369
+        ],
+        [
+          "Olympique Lyon",
+          1.31
+        ],
+        [
+          "Stade Rennes",
+          1.252
+        ]
+      ],
+      "top_defenses": [
+        [
+          "OGC Nice",
+          1.103
+        ],
+        [
+          "Paris Saint-Germain",
+          1.072
+        ],
+        [
+          "RC Lens",
+          1.069
+        ],
+        [
+          "Lille OSC",
+          1.056
+        ],
+        [
+          "Olympique Marseille",
+          0.917
+        ]
+      ],
+      "teams": {
+        "AC Ajaccio": {
+          "alpha_attack": 0.4378,
+          "beta_defense": 1.7268,
+          "defense_strength": 0.5791
+        },
+        "AJ Auxerre": {
+          "alpha_attack": 0.9368,
+          "beta_defense": 1.3144,
+          "defense_strength": 0.7608
+        },
+        "AS Monaco": {
+          "alpha_attack": 1.3893,
+          "beta_defense": 1.116,
+          "defense_strength": 0.896
+        },
+        "AS Saint-Etienne": {
+          "alpha_attack": 0.8889,
+          "beta_defense": 1.8809,
+          "defense_strength": 0.5317
+        },
+        "Angers SCO": {
+          "alpha_attack": 0.7094,
+          "beta_defense": 1.4455,
+          "defense_strength": 0.6918
+        },
+        "Clermont Foot 63": {
+          "alpha_attack": 0.717,
+          "beta_defense": 1.3966,
+          "defense_strength": 0.716
+        },
+        "ESTAC Troyes": {
+          "alpha_attack": 0.7938,
+          "beta_defense": 1.6187,
+          "defense_strength": 0.6178
+        },
+        "FC Lorient": {
+          "alpha_attack": 0.9087,
+          "beta_defense": 1.4806,
+          "defense_strength": 0.6754
+        },
+        "FC Metz": {
+          "alpha_attack": 0.7479,
+          "beta_defense": 1.4885,
+          "defense_strength": 0.6718
+        },
+        "FC Nantes": {
+          "alpha_attack": 0.7973,
+          "beta_defense": 1.2875,
+          "defense_strength": 0.7767
+        },
+        "Girondins Bordeaux": {
+          "alpha_attack": 0.9918,
+          "beta_defense": 2.1253,
+          "defense_strength": 0.4705
+        },
+        "Le Havre AC": {
+          "alpha_attack": 0.8647,
+          "beta_defense": 1.5095,
+          "defense_strength": 0.6625
+        },
+        "Lille OSC": {
+          "alpha_attack": 1.125,
+          "beta_defense": 0.9472,
+          "defense_strength": 1.0557
+        },
+        "Montpellier HSC": {
+          "alpha_attack": 0.8435,
+          "beta_defense": 1.575,
+          "defense_strength": 0.6349
+        },
+        "OGC Nice": {
+          "alpha_attack": 1.1221,
+          "beta_defense": 0.9062,
+          "defense_strength": 1.1035
+        },
+        "Olympique Lyon": {
+          "alpha_attack": 1.3101,
+          "beta_defense": 1.2328,
+          "defense_strength": 0.8111
+        },
+        "Olympique Marseille": {
+          "alpha_attack": 1.3686,
+          "beta_defense": 1.0907,
+          "defense_strength": 0.9168
+        },
+        "Paris Saint-Germain": {
+          "alpha_attack": 1.8256,
+          "beta_defense": 0.9332,
+          "defense_strength": 1.0715
+        },
+        "RC Lens": {
+          "alpha_attack": 1.0558,
+          "beta_defense": 0.9351,
+          "defense_strength": 1.0694
+        },
+        "RC Strasbourg": {
+          "alpha_attack": 1.0649,
+          "beta_defense": 1.1785,
+          "defense_strength": 0.8486
+        },
+        "Stade Brest": {
+          "alpha_attack": 1.0738,
+          "beta_defense": 1.2504,
+          "defense_strength": 0.7997
+        },
+        "Stade Reims": {
+          "alpha_attack": 0.8036,
+          "beta_defense": 1.1227,
+          "defense_strength": 0.8907
+        },
+        "Stade Rennes": {
+          "alpha_attack": 1.2516,
+          "beta_defense": 1.1422,
+          "defense_strength": 0.8755
+        },
+        "Toulouse FC": {
+          "alpha_attack": 0.9722,
+          "beta_defense": 1.1592,
+          "defense_strength": 0.8627
+        }
+      }
+    },
+    "Süper Lig": {
+      "matches_count": 1444,
+      "teams_count": 27,
+      "gamma_home_advantage": 1.287,
+      "rho": -0.1,
+      "top_attacks": [
+        [
+          "Fenerbahçe",
+          1.773
+        ],
+        [
+          "Galatasaray",
+          1.683
+        ],
+        [
+          "Trabzonspor",
+          1.273
+        ],
+        [
+          "Kasimpasa",
+          1.218
+        ],
+        [
+          "Beşiktaş",
+          1.191
+        ]
+      ],
+      "top_defenses": [
+        [
+          "Galatasaray",
+          1.397
+        ],
+        [
+          "Fenerbahçe",
+          1.155
+        ],
+        [
+          "Beşiktaş",
+          1.11
+        ],
+        [
+          "Bodrumspor",
+          1.07
+        ],
+        [
+          "Samsunspor",
+          1.0
+        ]
+      ],
+      "teams": {
+        "Ad. Demirspor": {
+          "alpha_attack": 1.0202,
+          "beta_defense": 1.5838,
+          "defense_strength": 0.6314
+        },
+        "Alanyaspor": {
+          "alpha_attack": 1.0315,
+          "beta_defense": 1.2109,
+          "defense_strength": 0.8258
+        },
+        "Altay": {
+          "alpha_attack": 0.7205,
+          "beta_defense": 1.2221,
+          "defense_strength": 0.8182
+        },
+        "Ankaragucu": {
+          "alpha_attack": 0.8614,
+          "beta_defense": 1.1517,
+          "defense_strength": 0.8683
+        },
+        "Antalyaspor": {
+          "alpha_attack": 0.8446,
+          "beta_defense": 1.2138,
+          "defense_strength": 0.8239
+        },
+        "Beşiktaş": {
+          "alpha_attack": 1.1915,
+          "beta_defense": 0.9006,
+          "defense_strength": 1.1103
+        },
+        "Bodrumspor": {
+          "alpha_attack": 0.5363,
+          "beta_defense": 0.9343,
+          "defense_strength": 1.0703
+        },
+        "Buyuksehyr": {
+          "alpha_attack": 1.1579,
+          "beta_defense": 1.0463,
+          "defense_strength": 0.9557
+        },
+        "Eyupspor": {
+          "alpha_attack": 1.0729,
+          "beta_defense": 1.0892,
+          "defense_strength": 0.9181
+        },
+        "Fenerbahçe": {
+          "alpha_attack": 1.7727,
+          "beta_defense": 0.8658,
+          "defense_strength": 1.155
+        },
+        "Galatasaray": {
+          "alpha_attack": 1.683,
+          "beta_defense": 0.7156,
+          "defense_strength": 1.3973
+        },
+        "Gaziantep FK": {
+          "alpha_attack": 0.8795,
+          "beta_defense": 1.2553,
+          "defense_strength": 0.7966
+        },
+        "Giresunspor": {
+          "alpha_attack": 0.8369,
+          "beta_defense": 1.2321,
+          "defense_strength": 0.8116
+        },
+        "Goztep": {
+          "alpha_attack": 1.1181,
+          "beta_defense": 1.2783,
+          "defense_strength": 0.7823
+        },
+        "Hatayspor": {
+          "alpha_attack": 0.8695,
+          "beta_defense": 1.5237,
+          "defense_strength": 0.6563
+        },
+        "Istanbulspor": {
+          "alpha_attack": 0.696,
+          "beta_defense": 1.6005,
+          "defense_strength": 0.6248
+        },
+        "Karagumruk SK": {
+          "alpha_attack": 1.1111,
+          "beta_defense": 1.2307,
+          "defense_strength": 0.8125
+        },
+        "Kasimpasa": {
+          "alpha_attack": 1.2175,
+          "beta_defense": 1.3936,
+          "defense_strength": 0.7176
+        },
+        "Kayserispor": {
+          "alpha_attack": 0.9599,
+          "beta_defense": 1.2922,
+          "defense_strength": 0.7739
+        },
+        "Konyaspor": {
+          "alpha_attack": 0.9397,
+          "beta_defense": 1.0742,
+          "defense_strength": 0.9309
+        },
+        "Pendikspor": {
+          "alpha_attack": 0.8029,
+          "beta_defense": 1.5364,
+          "defense_strength": 0.6509
+        },
+        "Rizespor": {
+          "alpha_attack": 1.0264,
+          "beta_defense": 1.3268,
+          "defense_strength": 0.7537
+        },
+        "Samsunspor": {
+          "alpha_attack": 0.9862,
+          "beta_defense": 1.0004,
+          "defense_strength": 0.9996
+        },
+        "Sivasspor": {
+          "alpha_attack": 0.9285,
+          "beta_defense": 1.2409,
+          "defense_strength": 0.8059
+        },
+        "Trabzonspor": {
+          "alpha_attack": 1.2727,
+          "beta_defense": 1.0672,
+          "defense_strength": 0.937
+        },
+        "Umraniyespor": {
+          "alpha_attack": 0.957,
+          "beta_defense": 1.4639,
+          "defense_strength": 0.6831
+        },
+        "Yeni Malatyaspor": {
+          "alpha_attack": 0.5056,
+          "beta_defense": 1.5269,
+          "defense_strength": 0.6549
+        }
+      }
+    }
+  }
+}
