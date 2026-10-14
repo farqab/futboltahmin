@@ -16,7 +16,8 @@ import os
 import sys
 import json
 import math
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Optional
+from datetime import datetime
 
 if sys.platform == "win32":
     try:
@@ -31,15 +32,20 @@ os.chdir(PROJECT_DIR)
 from dixon_coles_mle import DixonColesMLE
 
 
-def parse_score(score_str: str) -> Tuple[int, int]:
-    """'2 - 1' veya '1-4' formatındaki skoru ayrıştırır."""
-    if not score_str or "-" not in score_str:
-        return 0, 0
+def parse_score(score_str: str) -> Optional[Tuple[int, int]]:
+    """Skoru ayrıştırır; bozuk skorları 0-0 diye göstermeyip reddeder."""
+    if not isinstance(score_str, str) or "-" not in score_str:
+        return None
     parts = score_str.replace(" ", "").split("-")
     try:
-        return int(parts[0]), int(parts[1])
+        if len(parts) != 2:
+            return None
+        home, away = int(parts[0]), int(parts[1])
+        if home < 0 or away < 0:
+            return None
+        return home, away
     except (ValueError, IndexError):
-        return 0, 0
+        return None
 
 
 def run_honest_backtest():
@@ -54,13 +60,26 @@ def run_honest_backtest():
     # Geçerli maçları ayıkla
     valid_matches = []
     for idx, item in enumerate(raw_data):
-        score_str = item.get("actual_score")
-        if not score_str:
+        parsed_score = parse_score(item.get("actual_score"))
+        if parsed_score is None:
             continue
-        hg, ag = parse_score(score_str)
+        hg, ag = parsed_score
         h_name = item.get("home_name", "").strip()
         a_name = item.get("away_name", "").strip()
-        if not h_name or not a_name:
+        raw_date = item.get("utc_date") or item.get("date")
+        if not h_name or not a_name or not raw_date:
+            continue
+        try:
+            if isinstance(raw_date, str) and raw_date.endswith("Z"):
+                match_date = datetime.fromisoformat(raw_date.replace("Z", "+00:00"))
+            elif isinstance(raw_date, str) and len(raw_date) == 8 and raw_date.isdigit():
+                match_date = datetime.strptime(raw_date, "%Y%m%d")
+            else:
+                match_date = datetime.fromisoformat(str(raw_date))
+            # Naive/aware datetime karşılaştırmalarını engellemek için UTC-naive tut.
+            if match_date.tzinfo is not None:
+                match_date = match_date.astimezone(__import__("datetime").timezone.utc).replace(tzinfo=None)
+        except (TypeError, ValueError, OverflowError):
             continue
 
         valid_matches.append({
@@ -71,8 +90,11 @@ def run_honest_backtest():
             "away_goals": ag,
             "actual_result": "1" if hg > ag else ("X" if hg == ag else "2"),
             "actual_total_goals": hg + ag,
-            "days_ago": len(raw_data) - idx  # Kronolojik sıra yaklaşımı
+            "_match_date": match_date
         })
+
+    # Sıra indeksine güvenme: gerçek maç tarihine göre sırala.
+    valid_matches.sort(key=lambda m: m["_match_date"])
 
     total_count = len(valid_matches)
     print("=" * 80)
@@ -80,10 +102,24 @@ def run_honest_backtest():
     print(f"    Toplam Gerçek Maç Havuzu: {total_count} adet")
     print("=" * 80)
 
-    # %70 Eğitim (Train), %30 Test (Out-of-Sample) Bölünmesi
-    split_idx = int(total_count * 0.70)
-    train_data = valid_matches[:split_idx]
-    test_data = valid_matches[split_idx:]
+    # Aynı gündeki maçları train ve test'e bölme; böylece gün içi gelecek sızıntısı azalır.
+    unique_dates = sorted({m["_match_date"].date() for m in valid_matches})
+    if len(unique_dates) < 2:
+        raise ValueError("Kronolojik backtest için en az iki farklı maç tarihi gerekli.")
+    split_date_idx = min(max(int(len(unique_dates) * 0.70), 1), len(unique_dates) - 1)
+    test_start_date = unique_dates[split_date_idx]
+    train_data = [m.copy() for m in valid_matches if m["_match_date"].date() < test_start_date]
+    test_data = [m.copy() for m in valid_matches if m["_match_date"].date() >= test_start_date]
+
+    if not train_data or not test_data:
+        raise ValueError("Tarih bazlı train/test bölünmesi boş küme oluşturdu.")
+
+    # Ağırlıklandırma için sadece eğitim dönemindeki en yeni maç referans alınır.
+    latest_train_date = max(m["_match_date"] for m in train_data)
+    for m in train_data:
+        m["days_ago"] = max(0, (latest_train_date - m["_match_date"]).days)
+    for m in train_data + test_data:
+        m.pop("_match_date", None)
 
     print(f"[*] Eğitim Kümesi (In-Sample): {len(train_data)} maç")
     print(f"[*] Sınav Kümesi (Out-of-Sample): {len(test_data)} maç (Model bu maçları daha önce hiç görmedi!)")
@@ -112,7 +148,7 @@ def run_honest_backtest():
     brier_sum = 0.0
     log_loss_sum = 0.0
 
-    naive_brier_sum = 0.0 # Rastgele 0.33/0.33/0.33 tahmini
+    naive_brier_sum = 0.0 # Eşit olasılıklı referans (market baseline değildir)
 
     for m in test_data:
         pred = model.predict_match(m["home_team"], m["away_team"])
@@ -159,8 +195,8 @@ def run_honest_backtest():
     print(f"📉 Ortalama Log-Loss: {mean_log_loss}")
 
     improvement = round(((naive_brier - brier_score) / naive_brier) * 100, 2)
-    print(f"\n💡 SONUÇ: Gerçek Dixon-Coles MLE modeli, rastgele piyasa dağılımına kıyasla")
-    print(f"   kalibrasyonda %{improvement} daha üstün bir istatistiksel doğruluk elde etti.")
+    print(f"\n💡 Eşit olasılıklı referansa göre Brier değişimi: %{improvement}.")
+    print("   Bu karşılaştırma piyasa baseline'ı değildir ve tek başına kârlılık kanıtlamaz.")
     print("=" * 80)
 
 
