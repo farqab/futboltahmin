@@ -15,6 +15,7 @@ Temel Kurallar:
 """
 
 from typing import Dict, Any, List, Optional, Tuple
+import math
 from smart_money_tracker import detect_steam_moves, verify_smart_money_alignment
 from global_market_intelligence import GlobalMarketIntelligence
 
@@ -23,7 +24,7 @@ DUMMY_ODDS_SIGNATURES = [
     {"ms_1": 2.1, "ms_x": 3.3, "ms_2": 3.1},
 ]
 
-MIN_EV_THRESHOLD = 0.020  # Minimum %2.0 pozitif beklenen değer (+EV)
+MIN_EV_THRESHOLD = 0.025  # Dokümantasyonla uyumlu minimum %2.5 EV
 MAX_EV_CAP = 0.20        # Maksimum %20.0 EV tavanı (Aşırı uç model sapmalarını filtreler)
 
 
@@ -54,7 +55,7 @@ def is_dummy_or_missing_odds(odds: Optional[Dict[str, Any]]) -> Tuple[bool, str]
     if abs(f1 - 2.1) < 0.001 and abs(fx - 3.3) < 0.001 and abs(f2 - 3.1) < 0.001:
         return True, "YASAKLI SAHTE ORAN: Varsayılan (2.1 / 3.3 / 3.1) tespit edildi!"
 
-    return False, "Geçerli gerçek oran"
+    return False, "Biçimsel olarak geçerli oran; kaynak/doğruluk doğrulanmadı"
 
 
 def strip_margin_1x2(o1: float, ox: float, o2: float) -> Tuple[float, float, float, float]:
@@ -128,10 +129,46 @@ def find_value_bets(
 
     p1_fair, px_fair, p2_fair, margin_1x2 = strip_margin_1x2(o1, ox, o2)
 
-    # Model olasılıkları
-    p1_mod = model_output.get("prob_home_win", 0.33)
-    px_mod = model_output.get("prob_draw", 0.33)
-    p2_mod = model_output.get("prob_away_win", 0.33)
+    # Model olasılıkları: eksik/bozuk çıktıyı sessizce 0.33 ile doldurma.
+    if not isinstance(model_output, dict):
+        return {
+            "status": "REJECTED_NO_DATA",
+            "match": f"{match.get('home_name')} vs {match.get('away_name')}",
+            "reason": "Model çıktısı eksik veya sözlük biçiminde değil",
+            "value_bets": []
+        }
+    if not 0.0 <= model_weight <= 1.0:
+        raise ValueError("model_weight 0 ile 1 arasında olmalıdır")
+    if not math.isfinite(float(min_ev)):
+        raise ValueError("min_ev sonlu bir sayı olmalıdır")
+
+    prob_keys = ("prob_home_win", "prob_draw", "prob_away_win")
+    try:
+        raw_probs = [float(model_output[k]) for k in prob_keys]
+    except (KeyError, TypeError, ValueError):
+        return {
+            "status": "REJECTED_NO_DATA",
+            "match": f"{match.get('home_name')} vs {match.get('away_name')}",
+            "reason": "Modelin 1X2 olasılıkları eksik veya sayısal değil",
+            "value_bets": []
+        }
+    if any(not math.isfinite(p) or p < 0.0 or p > 1.0 for p in raw_probs):
+        return {
+            "status": "REJECTED_INVALID_MODEL_OUTPUT",
+            "match": f"{match.get('home_name')} vs {match.get('away_name')}",
+            "reason": "Model olasılıkları [0, 1] aralığında değil",
+            "value_bets": []
+        }
+    prob_sum = sum(raw_probs)
+    if prob_sum <= 0.0 or abs(prob_sum - 1.0) > 0.03:
+        return {
+            "status": "REJECTED_INVALID_MODEL_OUTPUT",
+            "match": f"{match.get('home_name')} vs {match.get('away_name')}",
+            "reason": f"1X2 olasılık toplamı geçersiz: {prob_sum:.4f}",
+            "value_bets": []
+        }
+    # Küçük kayan nokta/yuvarlama farklarını normalize et.
+    p1_mod, px_mod, p2_mod = (p / prob_sum for p in raw_probs)
 
     # Harmanlanmış olasılık (Shrinkage blend)
     p1_blend = (p1_mod * model_weight) + (p1_fair * (1.0 - model_weight))
@@ -176,30 +213,39 @@ def find_value_bets(
             fov, fun = float(o_over), float(o_under)
             if fov > 1.0 and fun > 1.0 and not (abs(fov - 1.75) < 0.001 and abs(fun - 1.75) < 0.001):
                 p_ov_fair, p_un_fair, _ = strip_margin_twoway(fov, fun)
-                p_ov_mod = model_output.get("prob_over_2_5", 0.50)
-                p_un_mod = model_output.get("prob_under_2_5", 0.50)
+                # Gol pazarı model olasılığı yoksa 50/50 varsayma; pazarı atla.
+                if "prob_over_2_5" in model_output and "prob_under_2_5" in model_output:
+                    p_ov_mod = float(model_output["prob_over_2_5"])
+                    p_un_mod = float(model_output["prob_under_2_5"])
+                    if (
+                        math.isfinite(p_ov_mod) and math.isfinite(p_un_mod)
+                        and 0.0 <= p_ov_mod <= 1.0
+                        and 0.0 <= p_un_mod <= 1.0
+                        and abs((p_ov_mod + p_un_mod) - 1.0) <= 0.03
+                    ):
+                        total_sum = p_ov_mod + p_un_mod
+                        p_ov_mod, p_un_mod = p_ov_mod / total_sum, p_un_mod / total_sum
+                        p_ov_blend = (p_ov_mod * model_weight) + (p_ov_fair * (1.0 - model_weight))
+                        p_un_blend = (p_un_mod * model_weight) + (p_un_fair * (1.0 - model_weight))
 
-                p_ov_blend = (p_ov_mod * model_weight) + (p_ov_fair * (1.0 - model_weight))
-                p_un_blend = (p_un_mod * model_weight) + (p_un_fair * (1.0 - model_weight))
-
-                candidates.append({
-                    "market": "2.5 Üst",
-                    "market_type": "TOTAL_GOALS",
-                    "odd": fov,
-                    "model_prob": p_ov_mod,
-                    "market_fair_prob": p_ov_fair,
-                    "blended_prob": round(p_ov_blend, 4),
-                    "ev": round((p_ov_blend * fov) - 1.0, 4)
-                })
-                candidates.append({
-                    "market": "2.5 Alt",
-                    "market_type": "TOTAL_GOALS",
-                    "odd": fun,
-                    "model_prob": p_un_mod,
-                    "market_fair_prob": p_un_fair,
-                    "blended_prob": round(p_un_blend, 4),
-                    "ev": round((p_un_blend * fun) - 1.0, 4)
-                })
+                        candidates.append({
+                            "market": "2.5 Üst",
+                            "market_type": "TOTAL_GOALS",
+                            "odd": fov,
+                            "model_prob": p_ov_mod,
+                            "market_fair_prob": p_ov_fair,
+                            "blended_prob": round(p_ov_blend, 4),
+                            "ev": round((p_ov_blend * fov) - 1.0, 4)
+                        })
+                        candidates.append({
+                            "market": "2.5 Alt",
+                            "market_type": "TOTAL_GOALS",
+                            "odd": fun,
+                            "model_prob": p_un_mod,
+                            "market_fair_prob": p_un_fair,
+                            "blended_prob": round(p_un_blend, 4),
+                            "ev": round((p_un_blend * fun) - 1.0, 4)
+                        })
         except (ValueError, TypeError):
             pass
 
@@ -249,8 +295,12 @@ def find_value_bets(
             c["is_smart_money_confirmed"] = False
         elif "BOOST" in global_eval["verdict"] or alignment["verdict"] == "ALIGNED":
             c["is_smart_money_confirmed"] = True
-            mult = max(global_eval.get("confidence_multiplier", 1.0), alignment.get("confidence_multiplier", 1.0))
-            c["ev"] = round(c["ev"] * mult, 4)
+            # Sinyal çarpanı EV'yi değiştiremez: EV yalnızca olasılık ve oranla hesaplanır.
+            # Sinyali ayrı alanlarda sakla; aksi hâlde beklenen getiri yapay olarak şişer.
+            c["smart_money_confidence_multiplier"] = max(
+                float(global_eval.get("confidence_multiplier", 1.0)),
+                float(alignment.get("confidence_multiplier", 1.0))
+            )
         else:
             c["is_smart_money_confirmed"] = False
 
