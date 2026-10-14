@@ -1,9 +1,6 @@
 """
-backtest_50agent_on_real_data.py — 50-Agent Swarm Gerçek Veri Doğrulama Testi
-============================================================================
-19 Eylül Cumartesi günü oynanmış gerçek maç verileri üzerinde 50 Ajanı koşturur,
-hangi maçların onaylanıp hangilerinin veto edildiğini ve 2'li Altın Kasa kuponunun
-kazanç durumunu raporlar.
+backtest_50agent_on_real_data.py — 50-Agent Swarm tanılama raporu.
+Bu script adayları listeler; tek başına isabet oranı veya ROI backtest'i değildir.
 """
 
 import sys, os
