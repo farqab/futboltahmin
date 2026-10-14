@@ -11,7 +11,8 @@ if sys.platform == "win32":
     try: sys.stdout.reconfigure(encoding="utf-8")
     except: pass
 
-os.chdir(r"C:\Users\farqa\OneDrive\Masaüstü\FutbolTahminAI")
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(PROJECT_DIR)
 from backtest_v3 import fetch_finished_matches, enrich_match
 from typesafe_engine import analyze_single_match
 from agent_swarm_50 import generate_50agent_smart_portfolio, Swarm50Engine
@@ -58,9 +59,8 @@ def main():
         print("🏆 50-AJAN 'ALTIN KASA' (2'Lİ BANKO KUPON):")
         print(f"Kupon: {ak['kupon_adi']}")
         print(f"Toplam Oran: {ak['toplam_oran']} | Güven: {ak['bilesik_guven']}")
-        all_won = True
         for m in ak["maclar"]:
-            # Kazanma durumunu kontrol et
+            # Bu scriptte gerçek sonuç-market eşlemesi yapılmadığından kupon sonucu hesaplanmaz.
             print(f"  👉 {m['mac']} -> {m['tercih']} (Oran: {m['oran']}) [Konsensüs: {m['konsensus']}]")
         print("=" * 80)
 
